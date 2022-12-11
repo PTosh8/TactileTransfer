@@ -25,8 +25,8 @@ class ProcessedTactileTransfer(Dataset):
 
         self.bubbles_transform = bubbles_transform
         self.gelslim_transform = gelslim_transform
-        self.bubbles_files = glob.glob(os.path.join(root_dir, 'processed_bubbles', split, '*.jpg'))
-        self.gelslim_files = glob.glob(os.path.join(root_dir, 'processed_gelslim', split, '*.jpg'))
+        self.bubbles_files = sorted(glob.glob(os.path.join(root_dir, 'processed_bubbles', split, '*.jpg')), key=self.key_function)
+        self.gelslim_files = sorted(glob.glob(os.path.join(root_dir, 'processed_gelslim', split, '*.jpg')), key=self.key_function)
 
     def __len__(self):
         return len(self.bubbles_files)
@@ -43,6 +43,11 @@ class ProcessedTactileTransfer(Dataset):
             gelslim_img = self.gelslim_transform(gelslim_img)
 
         return gelslim_img, bubbles_img
+
+    def key_function(self, filename):
+        splitname = filename.split('_')
+        datanum = splitname[-1].split('.')[0]
+        return int(datanum)
 
 def train(data_loader, model, optimizer, args, writer):
     for images, labels in data_loader:
@@ -149,17 +154,17 @@ def main(args):
 
     # Define the data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset,
-        batch_size=args.batch_size, shuffle=False,
+        batch_size=args.batch_size, shuffle=True,
         num_workers=args.num_workers, pin_memory=True)
     valid_loader = torch.utils.data.DataLoader(valid_dataset,
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.num_workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset,
-        batch_size=2, shuffle=True)
+        batch_size=2, shuffle=False)
 
     # Fixed images for Tensorboard
-    interesting_inputs = torch.cat([test_dataset[1][0].unsqueeze(0), test_dataset[70][0].unsqueeze(0), test_dataset[59][0].unsqueeze(0), test_dataset[76][0].unsqueeze(0)], dim=0)
-    interesting_gt = torch.cat([test_dataset[1][1].unsqueeze(0), test_dataset[70][1].unsqueeze(0), test_dataset[59][1].unsqueeze(0), test_dataset[76][1].unsqueeze(0)], dim=0)
+    interesting_inputs = torch.cat([test_dataset[0][0].unsqueeze(0), test_dataset[1][0].unsqueeze(0), test_dataset[6][0].unsqueeze(0), test_dataset[42][0].unsqueeze(0)], dim=0)
+    interesting_gt = torch.cat([test_dataset[0][1].unsqueeze(0), test_dataset[1][1].unsqueeze(0), test_dataset[6][1].unsqueeze(0), test_dataset[42][1].unsqueeze(0)], dim=0)
     interesting_inputs_grid = make_grid(interesting_inputs.cpu(), nrow=2, normalize=True)
     interesting_gt_grid = make_grid(interesting_gt.cpu(), nrow=2, normalize=True)
     
@@ -207,8 +212,8 @@ def main(args):
             best_loss = loss
             with open('{0}/best.pt'.format(save_filename), 'wb') as f:
                 torch.save(model.state_dict(), f)
-        with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
-            torch.save(model.state_dict(), f)
+        # with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
+        #     torch.save(model.state_dict(), f)
 
     dir = 'figures'
     for f in os.listdir(dir):
@@ -239,21 +244,31 @@ def main(args):
 
     fig.savefig(os.path.join(dir, 'losses.png'), bbox_inches='tight')
 
-
     interesting_outputs = generate_samples(interesting_inputs, model, args)
     interesting_outputs_grid = make_grid(interesting_outputs, nrow=2, normalize=True)
 
-    if os.path.exists('sample_reconstruction.png'):
-        os.remove('sample_reconstruction.png')
-    save_image(interesting_outputs_grid, 'sample_reconstruction.png')
     
-    if os.path.exists('input_image.png'):
-        os.remove('input_image.png')
-    save_image(interesting_inputs_grid, 'input_image.png')
+    with open('{0}/results.npy'.format(save_filename), 'wb') as f:
+        np.save(f, train_recons_loss, allow_pickle=True, fix_imports=True)
+        np.save(f, train_vq_loss, allow_pickle=True, fix_imports=True)
+        np.save(f, test_recons_loss, allow_pickle=True, fix_imports=True)
+        np.save(f, test_vq_loss, allow_pickle=True, fix_imports=True)
+        np.save(f, interesting_outputs.cpu().numpy(), allow_pickle=True, fix_imports=True)
+        np.save(f, interesting_gt.cpu().numpy(), allow_pickle=True, fix_imports=True)
+        np.save(f, interesting_inputs.cpu().numpy(), allow_pickle=True, fix_imports=True)
 
-    if os.path.exists('ground_truth.png'):
-        os.remove('ground_truth.png')
-    save_image(interesting_gt_grid, 'ground_truth.png')
+
+    if os.path.exists('{0}/sample_reconstruction.png'.format(save_filename)):
+        os.remove('{0}/sample_reconstruction.png'.format(save_filename))
+    save_image(interesting_outputs_grid, '{0}/sample_reconstruction.png'.format(save_filename))
+    
+    if os.path.exists('{0}/input_image.png'.format(save_filename)):
+        os.remove('{0}/input_image.png'.format(save_filename))
+    save_image(interesting_inputs_grid, '{0}/input_image.png'.format(save_filename))
+
+    if os.path.exists('{0}/ground_truth.png'.format(save_filename)):
+        os.remove('{0}/ground_truth.png'.format(save_filename))
+    save_image(interesting_gt_grid, '{0}/ground_truth.png'.format(save_filename))
 
     # input_image = (fixed_images[0,:,:,:].permute(1,2,0).numpy() * 255).astype(np.uint8)
     # sample_reconstruction = (reconstruction[0,:,:,:].to('cpu').permute(1,2,0).numpy() * 255).astype(np.uint8)

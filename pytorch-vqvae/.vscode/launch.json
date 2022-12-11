@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/vqvae.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["--hidden-size", "256", "--k", "256", "--data-folder", "../processed_data/", "--output-folder", "models/vqvae/", "--dataset", "tactiletransfer", "--batch-size", "64", "--device", "cuda", "--num-epochs", "100"]
+            "args": ["--hidden-size", "256", "--k", "256", "--data-folder", "../processed_data/", "--output-folder", "vqvae_num_256_size_256", "--dataset", "tactiletransfer", "--batch-size", "64", "--device", "cuda", "--num-epochs", "2"]
         }
     ]
 }
