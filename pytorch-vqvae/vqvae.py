@@ -147,9 +147,12 @@ def main(args):
             download=True, transform=transform)
         num_channels = 3
     elif args.dataset == 'tactiletransfer':
-        train_dataset = ConcatDataset([ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='train'), ProcessedTactileTransfer(os.path.join(args.data_folder, 'cone'), split='train')])
-        valid_dataset = ConcatDataset([ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='val'), ProcessedTactileTransfer(os.path.join(args.data_folder, 'cone'), split='val')])
-        test_dataset = ConcatDataset([ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='test'), ProcessedTactileTransfer(os.path.join(args.data_folder, 'cone'), split='test')])
+        # train_dataset = ConcatDataset([ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='train'), ProcessedTactileTransfer(os.path.join(args.data_folder, 'cone'), split='train')])
+        # valid_dataset = ConcatDataset([ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='val'), ProcessedTactileTransfer(os.path.join(args.data_folder, 'cone'), split='val')])
+        # test_dataset = ConcatDataset([ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='test'), ProcessedTactileTransfer(os.path.join(args.data_folder, 'cone'), split='test')])
+        train_dataset = ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='train')
+        valid_dataset = ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='val')
+        test_dataset = ProcessedTactileTransfer(os.path.join(args.data_folder, 'cylinder'), split='test')
         num_channels = 3
 
     # Define the data loaders
@@ -242,7 +245,7 @@ def main(args):
     ax4.set(xlabel='Epochs', ylabel='VQ Loss')
     ax4.set_title('Testing data')
 
-    fig.savefig(os.path.join(dir, 'losses.png'), bbox_inches='tight')
+    fig.savefig(os.path.join(save_filename, 'losses.png'), bbox_inches='tight')
 
     interesting_outputs = generate_samples(interesting_inputs, model, args)
     interesting_outputs_grid = make_grid(interesting_outputs, nrow=2, normalize=True)
