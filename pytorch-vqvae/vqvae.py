@@ -166,8 +166,8 @@ def main(args):
         batch_size=2, shuffle=False)
 
     # Fixed images for Tensorboard
-    interesting_inputs = torch.cat([test_dataset[0][0].unsqueeze(0), test_dataset[1][0].unsqueeze(0), test_dataset[6][0].unsqueeze(0), test_dataset[42][0].unsqueeze(0)], dim=0)
-    interesting_gt = torch.cat([test_dataset[0][1].unsqueeze(0), test_dataset[1][1].unsqueeze(0), test_dataset[6][1].unsqueeze(0), test_dataset[42][1].unsqueeze(0)], dim=0)
+    interesting_inputs = torch.cat([test_dataset[0][0].unsqueeze(0), test_dataset[7][0].unsqueeze(0), test_dataset[24][0].unsqueeze(0), test_dataset[42][0].unsqueeze(0)], dim=0)
+    interesting_gt = torch.cat([test_dataset[0][1].unsqueeze(0), test_dataset[7][1].unsqueeze(0), test_dataset[24][1].unsqueeze(0), test_dataset[42][1].unsqueeze(0)], dim=0)
     interesting_inputs_grid = make_grid(interesting_inputs.cpu(), nrow=2, normalize=True)
     interesting_gt_grid = make_grid(interesting_gt.cpu(), nrow=2, normalize=True)
     
@@ -218,9 +218,9 @@ def main(args):
         # with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
         #     torch.save(model.state_dict(), f)
 
-    dir = 'figures'
-    for f in os.listdir(dir):
-        os.remove(os.path.join(dir, f))
+    # dir = 'figures'
+    # for f in os.listdir(dir):
+    #     os.remove(os.path.join(dir, f))
     
     fig = plt.figure()
     gs = fig.add_gridspec(2, 2, hspace=0.4, wspace=0.2)

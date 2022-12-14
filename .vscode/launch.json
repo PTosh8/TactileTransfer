@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: vqvae_training",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "pytorch-vqvae/vqvae.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["--data-folder", "../processed_data/", "--dataset", "tactiletransfer", "--output-folder", "models/vqvae", "--num-epochs", "200", "--batch-size" ,"1"]
+            "args": ["--hidden-size", "256", "--k", "256", "--data-folder", "processed_data/", "--output-folder", "vqvae_num_256_size_256", "--dataset", "tactiletransfer", "--batch-size", "64", "--device", "cuda", "--num-epochs", "2"]
         }
     ]
 }
