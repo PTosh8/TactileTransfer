@@ -259,7 +259,9 @@ def main(args):
         np.save(f, interesting_outputs.cpu().numpy(), allow_pickle=True, fix_imports=True)
         np.save(f, interesting_gt.cpu().numpy(), allow_pickle=True, fix_imports=True)
         np.save(f, interesting_inputs.cpu().numpy(), allow_pickle=True, fix_imports=True)
-
+    
+    with open('{0}/test_loss.txt'.format(save_filename), 'w') as f:
+        f.write(str(test_recons_loss[-1]))
 
     if os.path.exists('{0}/sample_reconstruction.png'.format(save_filename)):
         os.remove('{0}/sample_reconstruction.png'.format(save_filename))
